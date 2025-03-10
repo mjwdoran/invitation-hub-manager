@@ -25,14 +25,19 @@ export function CustomerSearch({ onContactFound }: CustomerSearchProps) {
     const searchTermLower = searchTerm.toLowerCase();
     
     const matchingContact = contacts.find(contact => {
+      // Make sure we have the required fields before searching
+      if (!contact.firstName || !contact.lastName) return false;
+      
       const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
-      const address = `${contact.streetAddress} ${contact.city} ${contact.state}`.toLowerCase();
+      const address = `${contact.streetAddress || ''} ${contact.city || ''} ${contact.state || ''}`.toLowerCase();
       
       return fullName.includes(searchTermLower) || address.includes(searchTermLower);
     });
     
-    if (matchingContact) {
-      onContactFound(matchingContact);
+    if (matchingContact && matchingContact.id) {
+      // Cast to Contact after verifying required fields are present
+      const contactData = matchingContact as unknown as Contact;
+      onContactFound(contactData);
       toast.success("Found your information!");
     } else {
       toast.info("No matching information found. Please fill out the form below.");

@@ -1,11 +1,12 @@
+
 import React, { useState, useEffect } from 'react';
 import { Contact } from '@/lib/types';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Label } from '@/components/ui/label';
-import { Textarea } from '@/components/ui/textarea';
-import { CheckCircle } from 'lucide-react';
+import { PersonalInfoFields } from './contact-form/PersonalInfoFields';
+import { AddressFields } from './contact-form/AddressFields';
+import { AdditionalFields } from './contact-form/AdditionalFields';
+import { SubmissionConfirmation } from './contact-form/SubmissionConfirmation';
 
 interface CustomerContactFormProps {
   onSave: (contact: Partial<Contact>) => void;
@@ -100,136 +101,34 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
   return (
     <Card className="border shadow-sm animate-fade-in">
       {submitted ? (
-        <div className="flex flex-col items-center justify-center p-8 text-center">
-          <CheckCircle className="h-16 w-16 text-green-500 mb-4" />
-          <h2 className="text-2xl font-medium">Thank You!</h2>
-          <p className="text-muted-foreground mt-2">
-            Your information has been saved successfully.
-          </p>
-        </div>
+        <SubmissionConfirmation />
       ) : (
         <form onSubmit={handleSubmit}>
           <CardHeader>
             <CardTitle className="text-center">Contact Information</CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="firstName" className={errors.firstName ? "text-destructive" : ""}>
-                  First Name*
-                </Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  value={formData.firstName}
-                  onChange={handleInputChange}
-                  className={errors.firstName ? "border-destructive" : ""}
-                />
-                {errors.firstName && (
-                  <p className="text-xs text-destructive">{errors.firstName}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="lastName" className={errors.lastName ? "text-destructive" : ""}>
-                  Last Name*
-                </Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  value={formData.lastName}
-                  onChange={handleInputChange}
-                  className={errors.lastName ? "border-destructive" : ""}
-                />
-                {errors.lastName && (
-                  <p className="text-xs text-destructive">{errors.lastName}</p>
-                )}
-              </div>
-            </div>
+            <PersonalInfoFields 
+              firstName={formData.firstName || ''}
+              lastName={formData.lastName || ''}
+              email={formData.email}
+              phone={formData.phone}
+              errors={errors}
+              handleInputChange={handleInputChange}
+            />
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="email" className={errors.email ? "text-destructive" : ""}>
-                  Email
-                </Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email || ""}
-                  onChange={handleInputChange}
-                  className={errors.email ? "border-destructive" : ""}
-                />
-                {errors.email && (
-                  <p className="text-xs text-destructive">{errors.email}</p>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  name="phone"
-                  value={formData.phone || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
+            <AddressFields 
+              streetAddress={formData.streetAddress}
+              city={formData.city}
+              state={formData.state}
+              postalCode={formData.postalCode}
+              handleInputChange={handleInputChange}
+            />
             
-            <div className="space-y-2">
-              <Label htmlFor="streetAddress">Mailing Address</Label>
-              <Input
-                id="streetAddress"
-                name="streetAddress"
-                value={formData.streetAddress || ""}
-                onChange={handleInputChange}
-                placeholder="Street Address"
-              />
-            </div>
-            
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="city">City</Label>
-                <Input
-                  id="city"
-                  name="city"
-                  value={formData.city || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="state">State</Label>
-                <Input
-                  id="state"
-                  name="state"
-                  value={formData.state || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="postalCode">Zip Code</Label>
-                <Input
-                  id="postalCode"
-                  name="postalCode"
-                  value={formData.postalCode || ""}
-                  onChange={handleInputChange}
-                />
-              </div>
-            </div>
-            
-            <div className="space-y-2">
-              <Label htmlFor="notes">Notes (Optional)</Label>
-              <Textarea
-                id="notes"
-                name="notes"
-                value={formData.notes || ""}
-                onChange={handleInputChange}
-                rows={2}
-                placeholder="Any additional information you'd like us to know"
-              />
-            </div>
+            <AdditionalFields 
+              notes={formData.notes}
+              handleInputChange={handleInputChange}
+            />
           </CardContent>
           <CardFooter className="flex justify-center border-t px-6 py-4">
             <Button type="submit" size="lg">
