@@ -1,31 +1,38 @@
-
-import { useState } from "react";
-import { Contact } from "@/lib/types";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Contact } from '@/lib/types';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { CheckCircle } from 'lucide-react';
 
 interface CustomerContactFormProps {
   onSave: (contact: Partial<Contact>) => void;
+  initialData?: Contact;
 }
 
-export function CustomerContactForm({ onSave }: CustomerContactFormProps) {
+export function CustomerContactForm({ onSave, initialData }: CustomerContactFormProps) {
   const [formData, setFormData] = useState<Partial<Contact>>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    phone: "",
-    streetAddress: "",
-    city: "",
-    state: "",
-    postalCode: "",
-    country: "USA",
-    tags: ["customer-added"],
-    status: "active"
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    streetAddress: '',
+    city: '',
+    state: '',
+    postalCode: '',
+    country: 'USA',
+    tags: ['customer-added'],
+    status: 'active'
   });
+  
+  useEffect(() => {
+    if (initialData) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitted, setSubmitted] = useState(false);
 
@@ -73,17 +80,17 @@ export function CustomerContactForm({ onSave }: CustomerContactFormProps) {
       // Reset form after 3 seconds
       setTimeout(() => {
         setFormData({
-          firstName: "",
-          lastName: "",
-          email: "",
-          phone: "",
-          streetAddress: "",
-          city: "",
-          state: "",
-          postalCode: "",
-          country: "USA",
-          tags: ["customer-added"],
-          status: "active"
+          firstName: '',
+          lastName: '',
+          email: '',
+          phone: '',
+          streetAddress: '',
+          city: '',
+          state: '',
+          postalCode: '',
+          country: 'USA',
+          tags: ['customer-added'],
+          status: 'active'
         });
         setSubmitted(false);
       }, 3000);

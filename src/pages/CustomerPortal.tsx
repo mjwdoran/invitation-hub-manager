@@ -1,7 +1,7 @@
-
 import { useState, useEffect } from "react";
 import { CustomerContactForm } from "@/components/CustomerContactForm";
 import { CustomerHeader } from "@/components/CustomerHeader";
+import { CustomerSearch } from "@/components/CustomerSearch";
 import { Contact } from "@/lib/types";
 import { toast } from "sonner";
 import { useOfflineStorage } from "@/hooks/useOfflineStorage";
@@ -11,8 +11,8 @@ const CustomerPortal = () => {
   const { saveContact, getStoredContacts } = useOfflineStorage();
   const { isPending, sync, lastSyncTime } = useSyncData();
   const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [existingContact, setExistingContact] = useState<Contact | null>(null);
 
-  // Monitor online status
   useEffect(() => {
     const handleOnline = () => {
       setIsOnline(true);
@@ -35,11 +35,14 @@ const CustomerPortal = () => {
 
   const handleSave = async (contactData: Partial<Contact>) => {
     try {
-      // Save to local storage regardless of online status
-      await saveContact(contactData);
+      const dataToSave = existingContact 
+        ? { ...contactData, id: existingContact.id }
+        : contactData;
+        
+      await saveContact(dataToSave);
       toast.success("Thank you! Your information has been saved.");
+      setExistingContact(null);
       
-      // If online, attempt to sync immediately
       if (isOnline) {
         sync();
       }
@@ -49,12 +52,8 @@ const CustomerPortal = () => {
     }
   };
 
-  const handleManualSync = () => {
-    if (isOnline) {
-      sync();
-    } else {
-      toast.warning("You're offline. Please try again when you have internet connection.");
-    }
+  const handleContactFound = (contact: Contact) => {
+    setExistingContact(contact);
   };
 
   return (
@@ -65,7 +64,7 @@ const CustomerPortal = () => {
           <div className="text-center">
             <h1 className="text-3xl font-medium tracking-tight">Join Our Mailing List</h1>
             <p className="text-muted-foreground mt-1">
-              Stay updated on our latest events and announcements
+              {existingContact ? "Update your information" : "Search for your existing information or add yourself to our list"}
             </p>
           </div>
           
@@ -75,23 +74,28 @@ const CustomerPortal = () => {
             </div>
           )}
           
-          {isOnline && lastSyncTime && (
-            <div className="text-center text-xs text-muted-foreground">
-              Last synced: {new Date(lastSyncTime).toLocaleString()}
-            </div>
-          )}
+          <CustomerSearch onContactFound={handleContactFound} />
           
-          <CustomerContactForm onSave={handleSave} />
+          <CustomerContactForm 
+            onSave={handleSave} 
+            initialData={existingContact || undefined}
+          />
           
           {getStoredContacts().length > 0 && (
             <div className="mt-4 text-center">
               <button
-                onClick={handleManualSync}
+                onClick={() => sync()}
                 disabled={isPending || !isOnline}
                 className="text-sm font-medium text-primary hover:underline disabled:opacity-50"
               >
                 {isPending ? "Syncing..." : "Sync Now"}
               </button>
+              
+              {isOnline && lastSyncTime && (
+                <div className="text-xs text-muted-foreground mt-1">
+                  Last synced: {new Date(lastSyncTime).toLocaleString()}
+                </div>
+              )}
             </div>
           )}
         </div>
