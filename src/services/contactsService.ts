@@ -1,6 +1,7 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { Contact } from "@/lib/types";
+import { mapDbContactToContact, mapContactToDb } from "@/lib/mappers";
 
 export const contactsService = {
   async getContacts() {
@@ -10,7 +11,7 @@ export const contactsService = {
       .order('created_at', { ascending: false });
       
     if (error) throw error;
-    return data as Contact[];
+    return data.map(mapDbContactToContact);
   },
 
   async searchContacts(searchTerm: string) {
@@ -21,22 +22,18 @@ export const contactsService = {
       .order('created_at', { ascending: false });
       
     if (error) throw error;
-    return data as Contact[];
+    return data.map(mapDbContactToContact);
   },
 
   async saveContact(contact: Partial<Contact>) {
     const { data, error } = await supabase
       .from('contacts')
-      .upsert({
-        ...contact,
-        updated_at: new Date().toISOString(),
-        created_by: (await supabase.auth.getUser()).data.user?.id
-      })
+      .upsert(mapContactToDb(contact))
       .select()
       .single();
       
     if (error) throw error;
-    return data as Contact;
+    return mapDbContactToContact(data);
   },
 
   async deleteContact(id: string) {
