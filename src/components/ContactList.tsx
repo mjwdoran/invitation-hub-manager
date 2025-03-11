@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Contact } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
@@ -24,10 +23,12 @@ import {
   MoreHorizontal, 
   UserPlus,
   Mail,
+  Printer
 } from "lucide-react";
 import { toast } from "sonner";
 import { contactsService } from "@/services/contactsService";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { generateMailingLabelsPDF } from "@/utils/pdfUtils";
 
 interface ContactListProps {
   contacts: Contact[];
@@ -85,6 +86,27 @@ export function ContactList({ contacts, onAddClick, onEditClick }: ContactListPr
     deleteMutation.mutate(contactId);
   };
 
+  const handleGenerateLabels = () => {
+    if (filteredContacts.length === 0) {
+      toast.error("No contacts to print labels for");
+      return;
+    }
+
+    try {
+      const pdfDataUrl = generateMailingLabelsPDF(filteredContacts);
+      
+      const link = document.createElement('a');
+      link.href = pdfDataUrl;
+      link.download = 'mailing-labels.pdf';
+      link.click();
+      
+      toast.success("Mailing labels generated successfully");
+    } catch (error) {
+      console.error("Error generating labels:", error);
+      toast.error("Error generating mailing labels");
+    }
+  };
+
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center">
@@ -97,12 +119,21 @@ export function ContactList({ contacts, onAddClick, onEditClick }: ContactListPr
             onChange={(e) => setSearch(e.target.value)}
           />
         </div>
-        <Button 
-          className="min-w-[140px]"
-          onClick={onAddClick}
-        >
-          <UserPlus className="mr-2 h-4 w-4" /> Add Contact
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="outline" 
+            className="gap-2"
+            onClick={handleGenerateLabels}
+          >
+            <Printer className="h-4 w-4" /> Print Labels
+          </Button>
+          <Button 
+            className="min-w-[140px]"
+            onClick={onAddClick}
+          >
+            <UserPlus className="mr-2 h-4 w-4" /> Add Contact
+          </Button>
+        </div>
       </div>
       
       <Card className="border shadow-sm overflow-hidden">
