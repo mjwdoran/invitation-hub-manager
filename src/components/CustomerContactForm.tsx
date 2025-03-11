@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { PersonalInfoFields } from './contact-form/PersonalInfoFields';
 import { AddressFields } from './contact-form/AddressFields';
 import { AdditionalFields } from './contact-form/AdditionalFields';
+import { ContactInfoFields } from './contact-form/ContactInfoFields';
 import { SubmissionConfirmation } from './contact-form/SubmissionConfirmation';
 
 interface CustomerContactFormProps {
@@ -159,6 +160,13 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
               handleInputChange={handleInputChange}
               handleProvinceChange={handleProvinceChange}
               errors={errors}
+            />
+            
+            <ContactInfoFields
+              email={formData.email}
+              phone={formData.phone}
+              errors={errors}
+              handleInputChange={handleInputChange}
             />
             
             <AdditionalFields 

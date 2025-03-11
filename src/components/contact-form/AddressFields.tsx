@@ -59,7 +59,9 @@ export function AddressFields({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="streetAddress">Mailing Address</Label>
+        <Label htmlFor="streetAddress" className={errors.streetAddress ? "text-destructive" : ""}>
+          Mailing Address*
+        </Label>
         <Input
           id="streetAddress"
           name="streetAddress"
@@ -67,6 +69,7 @@ export function AddressFields({
           onChange={handleInputChange}
           placeholder="Street Address"
           className={errors.streetAddress ? "border-destructive" : ""}
+          required
         />
         {errors.streetAddress && (
           <p className="text-xs text-destructive">{errors.streetAddress}</p>
@@ -75,13 +78,16 @@ export function AddressFields({
       
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="city">City</Label>
+          <Label htmlFor="city" className={errors.city ? "text-destructive" : ""}>
+            City*
+          </Label>
           <Input
             id="city"
             name="city"
             value={city || ""}
             onChange={handleInputChange}
             className={errors.city ? "border-destructive" : ""}
+            required
           />
           {errors.city && (
             <p className="text-xs text-destructive">{errors.city}</p>
@@ -89,11 +95,14 @@ export function AddressFields({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="state">Province</Label>
+          <Label htmlFor="state" className={errors.state ? "text-destructive" : ""}>
+            Province*
+          </Label>
           {handleProvinceChange ? (
             <Select 
               value={state || ""} 
               onValueChange={handleProvinceChange}
+              required
             >
               <SelectTrigger id="state" className={errors.state ? "border-destructive" : ""}>
                 <SelectValue placeholder="Select province" />
@@ -113,6 +122,7 @@ export function AddressFields({
               value={state || ""}
               onChange={handleInputChange}
               className={errors.state ? "border-destructive" : ""}
+              required
             />
           )}
           {errors.state && (
@@ -121,7 +131,9 @@ export function AddressFields({
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="postalCode">Postal Code</Label>
+          <Label htmlFor="postalCode" className={errors.postalCode ? "text-destructive" : ""}>
+            Postal Code*
+          </Label>
           <Input
             id="postalCode"
             name="postalCode"
@@ -130,6 +142,7 @@ export function AddressFields({
             placeholder="A1A 1A1"
             onBlur={handlePostalCodeBlur}
             className={errors.postalCode ? "border-destructive" : ""}
+            required
           />
           {errors.postalCode && (
             <p className="text-xs text-destructive">{errors.postalCode}</p>

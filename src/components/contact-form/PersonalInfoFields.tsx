@@ -33,6 +33,7 @@ export function PersonalInfoFields({
             value={firstName}
             onChange={handleInputChange}
             className={errors.firstName ? "border-destructive" : ""}
+            required
           />
           {errors.firstName && (
             <p className="text-xs text-destructive">{errors.firstName}</p>
@@ -49,39 +50,11 @@ export function PersonalInfoFields({
             value={lastName}
             onChange={handleInputChange}
             className={errors.lastName ? "border-destructive" : ""}
+            required
           />
           {errors.lastName && (
             <p className="text-xs text-destructive">{errors.lastName}</p>
           )}
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="email" className={errors.email ? "text-destructive" : ""}>
-            Email
-          </Label>
-          <Input
-            id="email"
-            name="email"
-            type="email"
-            value={email || ""}
-            onChange={handleInputChange}
-            className={errors.email ? "border-destructive" : ""}
-          />
-          {errors.email && (
-            <p className="text-xs text-destructive">{errors.email}</p>
-          )}
-        </div>
-        
-        <div className="space-y-2">
-          <Label htmlFor="phone">Phone Number</Label>
-          <Input
-            id="phone"
-            name="phone"
-            value={phone || ""}
-            onChange={handleInputChange}
-          />
         </div>
       </div>
     </>
