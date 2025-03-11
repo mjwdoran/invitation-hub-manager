@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { Contact, mockContacts } from "@/lib/types";
+import { Contact } from "@/lib/types";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -24,22 +24,51 @@ import {
   MoreHorizontal, 
   UserPlus,
   Mail,
-  Calendar
 } from "lucide-react";
 import { toast } from "sonner";
+import { contactsService } from "@/services/contactsService";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 interface ContactListProps {
+  contacts: Contact[];
   onAddClick: () => void;
   onEditClick: (contact: Contact) => void;
 }
 
-export function ContactList({ onAddClick, onEditClick }: ContactListProps) {
-  const [contacts] = useState<Contact[]>(mockContacts);
+export function ContactList({ contacts, onAddClick, onEditClick }: ContactListProps) {
   const [search, setSearch] = useState("");
+  const queryClient = useQueryClient();
+
+  const deleteMutation = useMutation({
+    mutationFn: contactsService.deleteContact,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      toast.success("Contact deleted successfully");
+    },
+    onError: (error) => {
+      toast.error("Error deleting contact: " + error.message);
+    }
+  });
+
+  const statusMutation = useMutation({
+    mutationFn: (contact: Contact) => {
+      return contactsService.saveContact({
+        ...contact,
+        status: contact.status === 'active' ? 'inactive' : 'active'
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      toast.success("Contact status updated");
+    },
+    onError: (error) => {
+      toast.error("Error updating contact status: " + error.message);
+    }
+  });
 
   const filteredContacts = contacts.filter(contact => {
-    const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
     const searchTerm = search.toLowerCase();
+    const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
     
     return fullName.includes(searchTerm) || 
            contact.email?.toLowerCase().includes(searchTerm) ||
@@ -48,14 +77,12 @@ export function ContactList({ onAddClick, onEditClick }: ContactListProps) {
            contact.tags.some(tag => tag.toLowerCase().includes(searchTerm));
   });
 
-  const handleStatusToggle = (contactId: string) => {
-    // In a real app, this would update the contact in the database
-    toast.success("Contact status updated");
+  const handleStatusToggle = (contact: Contact) => {
+    statusMutation.mutate(contact);
   };
 
   const handleDelete = (contactId: string) => {
-    // In a real app, this would delete the contact from the database
-    toast.success("Contact deleted");
+    deleteMutation.mutate(contactId);
   };
 
   return (
@@ -145,7 +172,7 @@ export function ContactList({ onAddClick, onEditClick }: ContactListProps) {
                             </DropdownMenuItem>
                             <DropdownMenuItem onClick={(e) => {
                               e.stopPropagation();
-                              handleStatusToggle(contact.id);
+                              handleStatusToggle(contact);
                             }}>
                               {contact.status === 'active' ? 'Deactivate' : 'Activate'}
                             </DropdownMenuItem>

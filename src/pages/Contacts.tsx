@@ -3,12 +3,36 @@ import { useState } from "react";
 import { Header } from "@/components/Header";
 import { ContactList } from "@/components/ContactList";
 import { ContactForm } from "@/components/ContactForm";
-import { Contact, mockContacts } from "@/lib/types";
+import { Contact } from "@/lib/types";
 import { toast } from "sonner";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { contactsService } from "@/services/contactsService";
 
 const Contacts = () => {
   const [showForm, setShowForm] = useState(false);
   const [selectedContact, setSelectedContact] = useState<Contact | undefined>(undefined);
+  const queryClient = useQueryClient();
+
+  const { data: contacts = [] } = useQuery({
+    queryKey: ['contacts'],
+    queryFn: contactsService.getContacts
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: contactsService.saveContact,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      if (selectedContact) {
+        toast.success("Contact updated successfully");
+      } else {
+        toast.success("Contact added successfully");
+      }
+      setShowForm(false);
+    },
+    onError: (error) => {
+      toast.error("Error saving contact: " + error.message);
+    }
+  });
 
   const handleAddClick = () => {
     setSelectedContact(undefined);
@@ -21,13 +45,7 @@ const Contacts = () => {
   };
 
   const handleSave = (contact: Partial<Contact>) => {
-    // In a real app, this would save to a database
-    if (selectedContact) {
-      toast.success("Contact updated successfully");
-    } else {
-      toast.success("Contact added successfully");
-    }
-    setShowForm(false);
+    saveMutation.mutate(contact);
   };
 
   const handleCancel = () => {
@@ -48,6 +66,7 @@ const Contacts = () => {
             </div>
             
             <ContactList 
+              contacts={contacts}
               onAddClick={handleAddClick}
               onEditClick={handleEditClick}
             />

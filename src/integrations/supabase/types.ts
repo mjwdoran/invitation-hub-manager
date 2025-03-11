@@ -33,6 +33,66 @@ export type Database = {
         }
         Relationships: []
       }
+      contacts: {
+        Row: {
+          city: string
+          country: string
+          created_at: string
+          created_by: string | null
+          customer_added: boolean | null
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          notes: string | null
+          phone: string | null
+          postal_code: string
+          state: string
+          status: string
+          street_address: string
+          tags: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          city: string
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          customer_added?: boolean | null
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          notes?: string | null
+          phone?: string | null
+          postal_code: string
+          state: string
+          status?: string
+          street_address: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          city?: string
+          country?: string
+          created_at?: string
+          created_by?: string | null
+          customer_added?: boolean | null
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          notes?: string | null
+          phone?: string | null
+          postal_code?: string
+          state?: string
+          status?: string
+          street_address?: string
+          tags?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

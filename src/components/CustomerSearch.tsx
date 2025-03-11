@@ -1,11 +1,11 @@
 
 import React, { useState } from 'react';
 import { Contact } from '@/lib/types';
-import { useOfflineStorage } from '@/hooks/useOfflineStorage';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Search } from 'lucide-react';
 import { toast } from 'sonner';
+import { contactsService } from '@/services/contactsService';
 
 interface CustomerSearchProps {
   onContactFound: (contact: Contact) => void;
@@ -13,34 +13,30 @@ interface CustomerSearchProps {
 
 export function CustomerSearch({ onContactFound }: CustomerSearchProps) {
   const [searchTerm, setSearchTerm] = useState('');
-  const { getStoredContacts } = useOfflineStorage();
+  const [isSearching, setIsSearching] = useState(false);
   
-  const handleSearch = () => {
+  const handleSearch = async () => {
     if (searchTerm.length < 3) {
       toast.warning("Please enter at least 3 characters to search");
       return;
     }
     
-    const contacts = getStoredContacts();
-    const searchTermLower = searchTerm.toLowerCase();
-    
-    const matchingContact = contacts.find(contact => {
-      // Make sure we have the required fields before searching
-      if (!contact.firstName || !contact.lastName) return false;
+    setIsSearching(true);
+    try {
+      const contacts = await contactsService.searchContacts(searchTerm);
+      const matchingContact = contacts[0];
       
-      const fullName = `${contact.firstName} ${contact.lastName}`.toLowerCase();
-      const address = `${contact.streetAddress || ''} ${contact.city || ''} ${contact.state || ''}`.toLowerCase();
-      
-      return fullName.includes(searchTermLower) || address.includes(searchTermLower);
-    });
-    
-    if (matchingContact && matchingContact.id) {
-      // Cast to Contact after verifying required fields are present
-      const contactData = matchingContact as unknown as Contact;
-      onContactFound(contactData);
-      toast.success("Found your information!");
-    } else {
-      toast.info("No matching information found. Please fill out the form below.");
+      if (matchingContact) {
+        onContactFound(matchingContact);
+        toast.success("Found your information!");
+      } else {
+        toast.info("No matching information found. Please fill out the form below.");
+      }
+    } catch (error) {
+      console.error('Search error:', error);
+      toast.error("There was an error searching for your information");
+    } finally {
+      setIsSearching(false);
     }
   };
 
@@ -54,9 +50,12 @@ export function CustomerSearch({ onContactFound }: CustomerSearchProps) {
           onChange={(e) => setSearchTerm(e.target.value)}
           className="flex-1"
         />
-        <Button onClick={handleSearch} disabled={searchTerm.length < 3}>
+        <Button 
+          onClick={handleSearch} 
+          disabled={searchTerm.length < 3 || isSearching}
+        >
           <Search className="mr-2" />
-          Search
+          {isSearching ? 'Searching...' : 'Search'}
         </Button>
       </div>
     </div>
