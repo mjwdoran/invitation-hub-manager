@@ -23,7 +23,7 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
     city: '',
     state: '',
     postalCode: '',
-    country: 'USA',
+    country: 'Canada',
     tags: ['customer-added'],
     status: 'active'
   });
@@ -50,6 +50,18 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
     }
   };
 
+  const handleProvinceChange = (value: string) => {
+    setFormData((prev) => ({ ...prev, state: value }));
+    
+    if (errors.state) {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.state;
+        return newErrors;
+      });
+    }
+  };
+
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
     
@@ -58,6 +70,28 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
     
     if (formData.email && !/\S+@\S+\.\S+/.test(formData.email)) {
       newErrors.email = "Invalid email address";
+    }
+
+    if (!formData.streetAddress?.trim()) {
+      newErrors.streetAddress = "Street address is required";
+    }
+
+    if (!formData.city?.trim()) {
+      newErrors.city = "City is required";
+    }
+
+    if (!formData.state?.trim()) {
+      newErrors.state = "Province is required";
+    }
+
+    if (!formData.postalCode?.trim()) {
+      newErrors.postalCode = "Postal code is required";
+    } else {
+      // Validate Canadian postal code (letter-number-letter number-letter-number format)
+      const postalCodeRegex = /^[A-Za-z]\d[A-Za-z][ ]?\d[A-Za-z]\d$/;
+      if (!postalCodeRegex.test(formData.postalCode)) {
+        newErrors.postalCode = "Invalid postal code format (e.g. A1A 1A1)";
+      }
     }
     
     setErrors(newErrors);
@@ -89,7 +123,7 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
           city: '',
           state: '',
           postalCode: '',
-          country: 'USA',
+          country: 'Canada',
           tags: ['customer-added'],
           status: 'active'
         });
@@ -123,6 +157,8 @@ export function CustomerContactForm({ onSave, initialData }: CustomerContactForm
               state={formData.state}
               postalCode={formData.postalCode}
               handleInputChange={handleInputChange}
+              handleProvinceChange={handleProvinceChange}
+              errors={errors}
             />
             
             <AdditionalFields 

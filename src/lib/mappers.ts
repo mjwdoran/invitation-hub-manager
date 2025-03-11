@@ -31,7 +31,7 @@ export const mapContactToDb = (contact: Partial<Contact>) => ({
   city: contact.city,
   state: contact.state,
   postal_code: contact.postalCode,
-  country: contact.country,
+  country: 'Canada', // Always set country to Canada
   status: contact.status,
   tags: contact.tags,
   notes: contact.notes,
